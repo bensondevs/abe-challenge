@@ -14,6 +14,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained();
             $table->char('type');
             $table->string('reason');
+            $table->integer('amount');
             $table->timestamps();
             $table->softDeletes();
         });

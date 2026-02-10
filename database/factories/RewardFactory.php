@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BonusProgram>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Reward>
  */
-class BonusProgramFactory extends Factory
+class RewardFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -19,13 +19,13 @@ class BonusProgramFactory extends Factory
         return [
             'title' => fake()->sentence(3),
             'description' => fake()->paragraph(),
-            'credit_amount' => fake()->numberBetween(1, 10) * (fake()->randomElement([10, 100])),
+            'required_credits' => fake()->numberBetween(1, 10) * (fake()->randomElement([10, 100])),
             'active' => fake()->boolean(80),
         ];
     }
 
     /**
-     * Indicate that the bonus program is active.
+     * Indicate that the reward is active.
      */
     public function active(): static
     {
@@ -35,7 +35,7 @@ class BonusProgramFactory extends Factory
     }
 
     /**
-     * Indicate that the bonus program is inactive.
+     * Indicate that the reward is inactive.
      */
     public function inactive(): static
     {
