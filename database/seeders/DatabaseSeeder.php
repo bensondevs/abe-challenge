@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BonusProgram;
 use App\Models\Customer;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -20,5 +21,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Customer::factory()->count(3)->create();
+
+        BonusProgram::factory()->count(3)->active()->create();
+        BonusProgram::factory()->count(2)->inactive()->create();
     }
 }
