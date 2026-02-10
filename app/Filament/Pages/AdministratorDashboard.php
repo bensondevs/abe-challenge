@@ -10,3 +10,4 @@ class AdministratorDashboard extends Dashboard
 {
     protected static string|null|BackedEnum $navigationIcon = Heroicon::OutlinedHome;
 }
+

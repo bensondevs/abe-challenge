@@ -16,3 +16,4 @@ class CustomerFactory extends Factory
         ];
     }
 }
+

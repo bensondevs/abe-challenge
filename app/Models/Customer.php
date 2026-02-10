@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\Customers\CreditBalanceCalculator;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,5 +38,17 @@ class Customer extends Model
     public function creditTransactions(): HasMany
     {
         return $this->hasMany(CreditTransaction::class);
+    }
+
+    public function currentBalance(): Attribute
+    {
+        return Attribute::get(
+            fn () => $this->getCreditBalanceCalculator()->calculate(),
+        );
+    }
+
+    public function getCreditBalanceCalculator(): CreditBalanceCalculator
+    {
+        return CreditBalanceCalculator::for($this);
     }
 }

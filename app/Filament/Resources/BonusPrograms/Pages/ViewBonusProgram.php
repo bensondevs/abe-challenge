@@ -23,3 +23,4 @@ class ViewBonusProgram extends ViewRecord
         ];
     }
 }
+

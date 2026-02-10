@@ -3,20 +3,26 @@
 namespace App\Filament\Resources\Customers\Tables;
 
 use App\Filament\Tables\Columns\DateColumn;
+use App\Models\Customer;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CustomersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->query(
+                fn (Builder $query) => Customer::query()->withSum('creditTransactions as credit_balance', 'amount')
+            )
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
@@ -25,15 +31,19 @@ class CustomersTable
                     ->label('Creator')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('credit_balance')
+                    ->label('Credit Balance')
+                    ->numeric()
+                    ->getStateUsing(fn (Customer $record) => $record->credit_balance ?? 0)
+                    ->sortable(),
                 DateColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 DateColumn::make('updated_at')
-                    ->label('Last updated')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -43,6 +53,7 @@ class CustomersTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
             ])
             ->toolbarActions([
