@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\Customers\Actions;
 
-use App\Enums\Transaction\Type;
+use App\Actions\ApplyBonusProgram;
+use App\Forms\Components\BonusProgramSelect;
 use App\Models\BonusProgram;
-use App\Models\CreditTransaction;
 use App\Models\Customer;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 
@@ -20,34 +19,22 @@ class ApplyBonusProgramAction
             ->icon('heroicon-o-gift')
             ->color('success')
             ->schema([
-                Select::make('bonus_program_id')
-                    ->label('Bonus Program')
-                    ->options(
-                        BonusProgram::query()
-                            ->where('active', true)
-                            ->pluck('title', 'id')
-                    )
-                    ->required()
-                    ->searchable()
-                    ->live()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        if ($state) {
-                            $bonusProgram = BonusProgram::find($state);
-                            if ($bonusProgram) {
-                                $set('reason', $bonusProgram->description);
-                            }
-                        }
-                    }),
+                BonusProgramSelect::make('bonus_program_id')
+                    ->afterStateUpdated(
+                        fn (callable $get, callable $set) => blank($get('reason'))
+                            ? $set('reason', 'Applying bonus program')
+                            : '',
+                    ),
                 Textarea::make('reason')
                     ->label('Reason')
                     ->required()
                     ->rows(3)
                     ->helperText('Reason for applying this bonus program'),
             ])
-            ->action(function (array $data, Customer $record): void {
-                $bonusProgram = BonusProgram::find($data['bonus_program_id']);
+            ->action(function (?array $data, Customer $record, ApplyBonusProgram $applyBonusProgram): void {
+                $bonusProgram = BonusProgram::query()->find($data['bonus_program_id']);
 
-                if (! $bonusProgram || ! $bonusProgram->active) {
+                if (! $bonusProgram instanceof BonusProgram) {
                     Notification::make()
                         ->title('Invalid Bonus Program')
                         ->body('The selected bonus program is not available.')
@@ -57,21 +44,26 @@ class ApplyBonusProgramAction
                     return;
                 }
 
-                CreditTransaction::create([
-                    'customer_id' => $record->id,
-                    'user_id' => auth()->id(),
-                    'type' => Type::Bonus,
-                    'amount' => $bonusProgram->credit_amount,
-                    'reason' => $data['reason'] ?: $bonusProgram->description,
-                    'bonus_program_id' => $bonusProgram->id,
-                ]);
+                try {
+                    $applyBonusProgram(
+                        administrator: auth()->user(),
+                        customer: $record,
+                        bonusProgram: $bonusProgram,
+                        reason: $data['reason'],
+                    );
 
-                Notification::make()
-                    ->title('Bonus Applied')
-                    ->body("Successfully applied '{$bonusProgram->title}' bonus program. {$bonusProgram->credit_amount} credits added.")
-                    ->success()
-                    ->send();
-            })
-            ->successNotificationTitle('Bonus program applied successfully');
+                    Notification::make()
+                        ->title('Bonus Applied')
+                        ->body("Successfully applied '{$bonusProgram->title}' bonus program. {$bonusProgram->credit_amount} credits added.")
+                        ->success()
+                        ->send();
+                } catch (\Exception $e) {
+                    Notification::make()
+                        ->title('Error Applying Bonus')
+                        ->body($e->getMessage())
+                        ->danger()
+                        ->send();
+                }
+            });
     }
 }

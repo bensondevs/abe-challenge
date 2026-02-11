@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Customers\Tables;
 
 use App\Enums\Transaction\Type;
 use App\Filament\Tables\Columns\DateColumn;
+use App\Filament\Tables\Filters\DateRangeFilter;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -14,7 +15,7 @@ class CustomerTransactionsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['administrator' => ['name']]))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['administrator']))
             ->defaultSort('created_at', 'desc')
             ->columns([
                 DateColumn::make('created_at')
@@ -54,6 +55,9 @@ class CustomerTransactionsTable
                         Type::Bonus->value => Type::Bonus->getLabel(),
                         Type::Reward->value => Type::Reward->getLabel(),
                     ]),
+
+                DateRangeFilter::make('created_at')
+                    ->label('Date Range'),
             ])
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25, 50]);

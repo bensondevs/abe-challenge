@@ -10,6 +10,11 @@ class CreditTransactionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'creditTransactions';
 
+    public function getListeners(): array
+    {
+        return ['customer-updated' => '$refresh'];
+    }
+
     public function table(Table $table): Table
     {
         return CustomerTransactionsTable::configure($table);

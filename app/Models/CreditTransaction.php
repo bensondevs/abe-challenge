@@ -42,7 +42,7 @@ class CreditTransaction extends Model
 
     public function administrator(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function customer(): BelongsTo

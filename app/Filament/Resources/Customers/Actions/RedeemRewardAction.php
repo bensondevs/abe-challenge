@@ -2,13 +2,14 @@
 
 namespace App\Filament\Resources\Customers\Actions;
 
-use App\Enums\Transaction\Type;
-use App\Models\CreditTransaction;
+use App\Actions\RedeemReward;
 use App\Models\Customer;
 use App\Models\Reward;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
 
 class RedeemRewardAction
 {
@@ -16,13 +17,13 @@ class RedeemRewardAction
     {
         return Action::make('redeemReward')
             ->label('Redeem Reward')
-            ->icon('heroicon-o-star')
+            ->icon(Heroicon::OutlinedStar)
             ->color('warning')
             ->schema([
                 Select::make('reward_id')
                     ->label('Reward')
                     ->options(
-                        Reward::query()
+                        fn () => Reward::query()
                             ->where('active', true)
                             ->get()
                             ->mapWithKeys(fn (Reward $reward) => [
@@ -45,16 +46,14 @@ class RedeemRewardAction
                             }
                         }
                     }),
-                \Filament\Forms\Components\Placeholder::make('confirmation_message')
+                TextEntry::make('confirmation_message')
                     ->label('')
-                    ->content(function ($get, $record): ?string {
+                    ->getStateUsing(function (callable $get, Customer $record): ?string {
                         $rewardId = $get('reward_id');
-                        if (! $rewardId) {
-                            return null;
-                        }
 
-                        $reward = Reward::find($rewardId);
-                        if (! $reward) {
+                        $reward = Reward::query()->find($rewardId);
+
+                        if (! $reward instanceof Reward) {
                             return null;
                         }
 
@@ -67,10 +66,10 @@ class RedeemRewardAction
                     })
                     ->visible(fn ($get): bool => ! empty($get('reward_id'))),
             ])
-            ->action(function (array $data, Customer $record): void {
-                $reward = Reward::find($data['reward_id']);
+            ->action(function (array $data, Customer $record, RedeemReward $redeemReward) {
+                $reward = Reward::query()->find($data['reward_id']);
 
-                if (! $reward || ! $reward->active) {
+                if (! $reward instanceof Reward) {
                     Notification::make()
                         ->title('Invalid Reward')
                         ->body('The selected reward is not available.')
@@ -80,34 +79,25 @@ class RedeemRewardAction
                     return;
                 }
 
-                $currentBalance = $record->current_balance;
+                try {
+                    $redeemReward(
+                        administrator: auth()->user(),
+                        customer: $record,
+                        reward: $reward,
+                    );
 
-                // Validate sufficient balance
-                if ($currentBalance < $reward->required_credits) {
                     Notification::make()
-                        ->title('Insufficient Balance')
-                        ->body("Cannot redeem '{$reward->title}'. Required: {$reward->required_credits} credits, Current: {$currentBalance} credits.")
+                        ->title('Reward Redeemed')
+                        ->body("Successfully redeemed '{$reward->title}'. {$reward->required_credits} credits deducted.")
+                        ->success()
+                        ->send();
+                } catch (\Exception $e) {
+                    Notification::make()
+                        ->title('Error Redeeming Reward')
+                        ->body($e->getMessage())
                         ->danger()
                         ->send();
-
-                    return;
                 }
-
-                CreditTransaction::create([
-                    'customer_id' => $record->id,
-                    'user_id' => auth()->id(),
-                    'type' => Type::Reward,
-                    'amount' => -$reward->required_credits,
-                    'reason' => "Redeemed: {$reward->title}",
-                    'reward_id' => $reward->id,
-                ]);
-
-                Notification::make()
-                    ->title('Reward Redeemed')
-                    ->body("Successfully redeemed '{$reward->title}'. {$reward->required_credits} credits deducted.")
-                    ->success()
-                    ->send();
-            })
-            ->successNotificationTitle('Reward redeemed successfully');
+            });
     }
 }
