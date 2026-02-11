@@ -17,7 +17,7 @@ class RedeemReward
      * @throws \Exception if reward is not active or insufficient balance
      */
     public function __invoke(
-        User $administrator,
+        ?User $administrator,
         Customer $customer,
         Reward $reward
     ): CreditTransaction {
@@ -46,7 +46,9 @@ class RedeemReward
             $transaction->reason = "Redeemed: {$reward->title}";
 
             $transaction->customer()->associate($lockedCustomer);
-            $transaction->administrator()->associate($administrator);
+            if ($administrator) {
+                $transaction->administrator()->associate($administrator);
+            }
 
             $transaction->save();
 

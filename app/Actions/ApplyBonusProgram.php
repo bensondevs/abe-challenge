@@ -11,7 +11,7 @@ use App\Models\User;
 class ApplyBonusProgram
 {
     public function __invoke(
-        User $administrator,
+        ?User $administrator,
         Customer $customer,
         BonusProgram $bonusProgram,
         string $reason,
@@ -22,7 +22,9 @@ class ApplyBonusProgram
         $transaction->reason = $reason;
 
         $transaction->customer()->associate($customer);
-        $transaction->administrator()->associate($administrator);
+        if ($administrator) {
+            $transaction->administrator()->associate($administrator);
+        }
 
         $transaction->save();
 

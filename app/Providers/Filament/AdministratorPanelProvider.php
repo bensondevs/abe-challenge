@@ -3,6 +3,10 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\AdministratorDashboard;
+use App\Filament\Resources\BonusPrograms\BonusProgramResource;
+use App\Filament\Resources\Customers\CustomerResource;
+use App\Filament\Resources\Rewards\RewardResource;
+use App\Filament\Resources\Users\UserResource;
 use App\Filament\Widgets\LoyaltyStatsOverviewWidget;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -44,12 +48,15 @@ class AdministratorPanelProvider extends PanelProvider
             ->maxContentWidth(Width::Full)
             ->topNavigation()
             ->globalSearch(false)
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->resources([
+                CustomerResource::class,
+                BonusProgramResource::class,
+                RewardResource::class,
+                UserResource::class,
+            ])
             ->pages([
                 AdministratorDashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 LoyaltyStatsOverviewWidget::class,
             ])

@@ -23,6 +23,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'administrator@abe-challenge.com',
         ]);
 
+        Customer::factory()->create([
+            'email' => 'customer@abe-challenge.com',
+        ]);
+
         Customer::factory()->count(100)
             ->create()
             ->each(

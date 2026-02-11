@@ -13,6 +13,8 @@ class CustomerFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
         ];
     }
 }
