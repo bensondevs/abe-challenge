@@ -7,11 +7,12 @@ A Laravel 12 application with Filament 5 admin panel for managing customer credi
 - **Laravel 12** - PHP Framework
 - **Filament 5** - Admin Panel
 - **Livewire 4** - Reactive Components
-- **PHP 8.2+** - Programming Language
-- **SQLite/MySQL** - Database
+- **PHP 8.2+** - Programming Language (PHP 8.5 in Sail environment)
+- **SQLite/MySQL** - Database (MySQL 8.4 in Sail environment)
 - **Vite** - Frontend Build Tool
 - **Tailwind CSS** - Styling
 - **Pest** - Testing Framework
+- **Docker & Laravel Sail** - Containerized development environment (optional but recommended)
 
 ## Table of Contents
 
@@ -22,7 +23,7 @@ A Laravel 12 application with Filament 5 admin panel for managing customer credi
 - [Running the Application](#running-the-application)
 - [Accessing the Application](#accessing-the-application)
 - [Development Workflow](#development-workflow)
-- [Using Laravel Sail (Optional)](#using-laravel-sail-optional)
+- [Using Laravel Sail (Docker Development)](#using-laravel-sail-docker-development)
 - [Project Structure](#project-structure)
 - [Features](#features)
 - [Troubleshooting](#troubleshooting)
@@ -33,17 +34,87 @@ A Laravel 12 application with Filament 5 admin panel for managing customer credi
 
 Before you begin, ensure you have the following installed on your machine:
 
+**For Local Development (without Docker):**
 - **PHP 8.2 or higher** with extensions: BCMath, Ctype, cURL, DOM, Fileinfo, JSON, Mbstring, OpenSSL, PCRE, PDO, Tokenizer, XML
 - **Composer 2.x** - PHP dependency manager
 - **Node.js 22+** and **npm** - For frontend asset compilation
 - **SQLite** (default, no setup needed) OR **MySQL 8.0+** / **PostgreSQL 13+**
-- **Optional**: Docker & Docker Compose (for Laravel Sail)
+
+**For Docker Development (with Laravel Sail):**
+- **Docker** and **Docker Compose** - Required for Sail
+- **Node.js 22+** and **npm** - For frontend asset compilation (optional, can run in container)
+- Note: Sail provides PHP 8.5 and MySQL 8.4 automatically, so local PHP/MySQL installation is not required
 
 ## Installation
 
-### Quick Setup (Recommended)
+### Installation with Laravel Sail (Recommended for Docker Users)
 
-The easiest way to get started is using the setup script:
+Laravel Sail is already installed and configured in this project. If you prefer using Docker, follow these steps:
+
+1. **Ensure Docker and Docker Compose are installed**
+   - Docker Desktop or Docker Engine
+   - Docker Compose v2+
+
+2. **Copy environment file**
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Configure Sail environment variables in `.env`**
+   ```env
+   APP_PORT=80
+   VITE_PORT=5173
+   FORWARD_DB_PORT=3306
+   DB_CONNECTION=mysql
+   DB_HOST=mysql
+   DB_PORT=3306
+   DB_DATABASE=abe_challenge
+   DB_USERNAME=sail
+   DB_PASSWORD=password
+   WWWUSER=1000
+   WWWGROUP=1000
+   ```
+
+4. **Start Sail containers**
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
+
+5. **Install PHP dependencies**
+   ```bash
+   ./vendor/bin/sail composer install
+   ```
+
+6. **Generate application key**
+   ```bash
+   ./vendor/bin/sail artisan key:generate
+   ```
+
+7. **Run database migrations**
+   ```bash
+   ./vendor/bin/sail artisan migrate
+   ```
+
+8. **Install Node dependencies**
+   ```bash
+   ./vendor/bin/sail npm install
+   ```
+
+9. **Build frontend assets**
+   ```bash
+   ./vendor/bin/sail npm run build
+   ```
+
+10. **Seed the database** (optional, for sample data)
+    ```bash
+    ./vendor/bin/sail artisan db:seed
+    ```
+
+The application will be available at `http://localhost` (port 80).
+
+### Quick Setup (For Local PHP Installation)
+
+The easiest way to get started with local PHP installation is using the setup script:
 
 ```bash
 composer run setup
@@ -56,6 +127,8 @@ This command will:
 - Run database migrations
 - Install Node dependencies
 - Build frontend assets
+
+**Note:** If you're using Sail, use Sail commands instead (see [Installation with Laravel Sail](#installation-with-laravel-sail-recommended-for-docker-users) above).
 
 ### Manual Setup
 
@@ -111,18 +184,41 @@ The `.env` file contains important configuration. Key variables to review:
 - `APP_NAME` - Application name
 - `APP_ENV` - Set to `local` for development
 - `APP_DEBUG` - Set to `true` for development (shows detailed errors)
-- `APP_URL` - Application URL (default: `http://localhost:8000`)
+- `APP_URL` - Application URL
+  - Local: `http://localhost:8000`
+  - Sail: `http://localhost`
+
+### Sail-Specific Environment Variables
+
+If you're using Laravel Sail, configure these variables:
+
+- `APP_PORT` - Application port (default: `80`)
+- `VITE_PORT` - Vite dev server port (default: `5173`)
+- `FORWARD_DB_PORT` - MySQL port exposed to host (default: `3306`)
+- `WWWUSER` - User ID for file permissions (usually your system user ID, e.g., `1000`)
+- `WWWGROUP` - Group ID for file permissions (usually your system group ID, e.g., `1000`)
+- `SAIL_XDEBUG_MODE` - Xdebug mode (default: `off`, can be set to `develop,debug,coverage,profile,trace`)
 
 ### Database Configuration
 
-**SQLite (Default)**
+**For Laravel Sail (MySQL 8.4)**
+```env
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=abe_challenge
+DB_USERNAME=sail
+DB_PASSWORD=password
+```
+
+**SQLite (Default for Local Development)**
 ```env
 DB_CONNECTION=sqlite
 ```
 
 No additional configuration needed. The database file will be created at `database/database.sqlite`.
 
-**MySQL**
+**MySQL (Local Installation)**
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -149,17 +245,35 @@ DB_PASSWORD=your_password
 
 ## Database Setup
 
-### SQLite (Default)
+### Laravel Sail (MySQL 8.4)
 
-SQLite is the default database and requires no additional setup:
+If you're using Laravel Sail, MySQL 8.4 is automatically set up:
+
+1. **Configure database in `.env`** (see [Environment Configuration](#environment-configuration))
+2. **Start Sail containers**
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
+3. **Run migrations**
+   ```bash
+   ./vendor/bin/sail artisan migrate
+   ```
+
+The MySQL database is accessible from your host machine at `127.0.0.1:3306` (or the port specified in `FORWARD_DB_PORT`).
+
+### SQLite (Default for Local Development)
+
+SQLite is the default database for local PHP installations and requires no additional setup:
 
 - The database file will be automatically created at `database/database.sqlite`
 - Ensure the `database/` directory has write permissions
 - No database server installation required
 
-### MySQL/PostgreSQL
+**Note:** SQLite is not available in Sail environment. Sail uses MySQL by default.
 
-If you prefer to use MySQL or PostgreSQL:
+### MySQL/PostgreSQL (Local Installation)
+
+If you prefer to use MySQL or PostgreSQL with local PHP installation:
 
 1. **Create a database** using your database management tool
 2. **Update `.env`** with your database connection details (see [Environment Configuration](#environment-configuration))
@@ -170,9 +284,35 @@ If you prefer to use MySQL or PostgreSQL:
 
 ## Running the Application
 
-### Development Mode
+### Using Laravel Sail
 
-For development, use the dev script which runs multiple services concurrently:
+If you're using Laravel Sail, the application runs automatically when containers are started:
+
+1. **Start containers** (if not already running)
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
+
+2. **Run Vite dev server** (for hot module replacement)
+   ```bash
+   ./vendor/bin/sail npm run dev
+   ```
+
+The application will be available at `http://localhost` (port 80).
+
+**Note:** Sail serves the application automatically via Nginx, so you don't need to run `php artisan serve`.
+
+**Useful Sail commands:**
+- `./vendor/bin/sail up` - Start containers in foreground
+- `./vendor/bin/sail up -d` - Start containers in background (detached)
+- `./vendor/bin/sail down` - Stop containers
+- `./vendor/bin/sail restart` - Restart containers
+- `./vendor/bin/sail logs` - View container logs
+- `./vendor/bin/sail logs -f` - Follow container logs
+
+### Development Mode (Local PHP Installation)
+
+For development with local PHP installation, use the dev script which runs multiple services concurrently:
 
 ```bash
 composer run dev
@@ -194,11 +334,16 @@ For production or when you need to test the built assets:
    ```bash
    npm run build
    ```
+   Or with Sail:
+   ```bash
+   ./vendor/bin/sail npm run build
+   ```
 
-2. **Serve the application**
+2. **Serve the application** (local PHP only)
    ```bash
    php artisan serve
    ```
+   **Note:** With Sail, the application is already served automatically.
 
 ## Accessing the Application
 
@@ -206,21 +351,29 @@ For production or when you need to test the built assets:
 
 The Filament admin panel is available at:
 
-```
-http://localhost:8000/administrator
-```
+- **Laravel Sail**: `http://localhost/administrator`
+- **Local PHP**: `http://localhost:8000/administrator`
 
 ### Customer Panel
 
 The customer panel is available at:
 
-```
-http://localhost:8000/customer
-```
+- **Laravel Sail**: `http://localhost/customer`
+- **Local PHP**: `http://localhost:8000/customer`
 
 ### Test Credentials
 
-After running the database seeder (`php artisan db:seed`), you can use these credentials to log in:
+After running the database seeder, you can use these credentials to log in:
+
+**With Sail:**
+```bash
+./vendor/bin/sail artisan db:seed
+```
+
+**With Local PHP:**
+```bash
+php artisan db:seed
+```
 
 **Admin Panel:**
 - **Email**: `administrator@abe-challenge.com`
@@ -236,6 +389,12 @@ After running the database seeder (`php artisan db:seed`), you can use these cre
 
 Format your code using Laravel Pint:
 
+**With Sail:**
+```bash
+./vendor/bin/sail composer run lint
+```
+
+**With Local PHP:**
 ```bash
 composer run lint
 ```
@@ -244,12 +403,24 @@ composer run lint
 
 Run the test suite:
 
+**With Sail:**
+```bash
+./vendor/bin/sail composer run test
+```
+
+**With Local PHP:**
 ```bash
 composer run test
 ```
 
 Or use Pest directly:
 
+**With Sail:**
+```bash
+./vendor/bin/sail artisan test
+```
+
+**With Local PHP:**
 ```bash
 php artisan test
 ```
@@ -258,18 +429,36 @@ php artisan test
 
 Create a new migration:
 
+**With Sail:**
+```bash
+./vendor/bin/sail artisan make:migration create_example_table
+```
+
+**With Local PHP:**
 ```bash
 php artisan make:migration create_example_table
 ```
 
 Run migrations:
 
+**With Sail:**
+```bash
+./vendor/bin/sail artisan migrate
+```
+
+**With Local PHP:**
 ```bash
 php artisan migrate
 ```
 
 Rollback the last migration:
 
+**With Sail:**
+```bash
+./vendor/bin/sail artisan migrate:rollback
+```
+
+**With Local PHP:**
 ```bash
 php artisan migrate:rollback
 ```
@@ -278,6 +467,12 @@ php artisan migrate:rollback
 
 Create a new model with factory and migration:
 
+**With Sail:**
+```bash
+./vendor/bin/sail artisan make:model Example -mf
+```
+
+**With Local PHP:**
 ```bash
 php artisan make:model Example -mf
 ```
@@ -286,49 +481,235 @@ php artisan make:model Example -mf
 
 Seed the database with sample data:
 
+**With Sail:**
+```bash
+./vendor/bin/sail artisan db:seed
+```
+
+**With Local PHP:**
 ```bash
 php artisan db:seed
 ```
 
 Seed a specific seeder:
 
+**With Sail:**
+```bash
+./vendor/bin/sail artisan db:seed --class=DatabaseSeeder
+```
+
+**With Local PHP:**
 ```bash
 php artisan db:seed --class=DatabaseSeeder
 ```
 
-## Using Laravel Sail (Optional)
+**Note:** When using Sail, prefix all `artisan`, `composer`, and `npm` commands with `./vendor/bin/sail` to run them inside the container.
 
-Laravel Sail provides a Docker-based development environment. To use Sail:
+## Using Laravel Sail (Docker Development)
 
-1. **Install Sail** (if not already installed)
+Laravel Sail is already installed and pre-configured in this project. Sail provides a Docker-based development environment with PHP 8.5 and MySQL 8.4, eliminating the need for local PHP and database installations.
+
+### Sail is Already Installed
+
+This project comes with Sail pre-configured. The `docker-compose.yml` file is set up with:
+- PHP 8.5 runtime
+- MySQL 8.4 database
+- Nginx web server
+- All necessary PHP extensions
+
+### Initial Setup
+
+If this is your first time setting up the project with Sail:
+
+1. **Copy environment file**
    ```bash
-   composer require laravel/sail --dev
+   cp .env.example .env
    ```
 
-2. **Install Sail configuration**
+2. **Configure Sail environment variables** (see [Environment Configuration](#environment-configuration))
+
+3. **Start Sail containers**
    ```bash
-   php artisan sail:install
+   ./vendor/bin/sail up -d
    ```
 
-3. **Start the containers**
-   ```bash
-   ./vendor/bin/sail up
+4. **Install dependencies and set up the application** (see [Installation with Laravel Sail](#installation-with-laravel-sail-recommended-for-docker-users))
+
+### Starting and Stopping Sail
+
+**Start containers:**
+```bash
+./vendor/bin/sail up
+```
+
+**Start containers in background (detached mode):**
+```bash
+./vendor/bin/sail up -d
+```
+
+**Stop containers:**
+```bash
+./vendor/bin/sail down
+```
+
+**Restart containers:**
+```bash
+./vendor/bin/sail restart
+```
+
+### Running Commands
+
+All commands should be prefixed with `./vendor/bin/sail` to run inside the container:
+
+**Artisan commands:**
+```bash
+./vendor/bin/sail artisan [command]
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan db:seed
+./vendor/bin/sail artisan test
+```
+
+**Composer commands:**
+```bash
+./vendor/bin/sail composer [command]
+./vendor/bin/sail composer install
+./vendor/bin/sail composer update
+./vendor/bin/sail composer run test
+```
+
+**NPM commands:**
+```bash
+./vendor/bin/sail npm [command]
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev
+./vendor/bin/sail npm run build
+```
+
+**PHP commands:**
+```bash
+./vendor/bin/sail php [command]
+./vendor/bin/sail php artisan tinker
+```
+
+### Sail Alias (Optional)
+
+For convenience, you can set up a `sail` alias to avoid typing `./vendor/bin/sail` every time:
+
+**Bash/Zsh:**
+Add to `~/.bashrc` or `~/.zshrc`:
+```bash
+alias sail='./vendor/bin/sail'
+```
+
+**Fish:**
+Add to `~/.config/fish/config.fish`:
+```fish
+function sail
+    ./vendor/bin/sail $argv
+end
+```
+
+After setting up the alias, you can use:
+```bash
+sail up
+sail artisan migrate
+sail composer install
+```
+
+### Database Access
+
+**Access MySQL from host machine:**
+```bash
+./vendor/bin/sail mysql
+```
+
+**Access MySQL with specific user:**
+```bash
+./vendor/bin/sail mysql -u root -p
+```
+
+**Connect from external tools:**
+- Host: `127.0.0.1`
+- Port: `3306` (or value from `FORWARD_DB_PORT`)
+- Username: `sail` (or value from `DB_USERNAME`)
+- Password: `password` (or value from `DB_PASSWORD`)
+- Database: `abe_challenge` (or value from `DB_DATABASE`)
+
+### Shell Access
+
+Access the container shell:
+```bash
+./vendor/bin/sail shell
+```
+
+Or access as root:
+```bash
+./vendor/bin/sail root-shell
+```
+
+### Viewing Logs
+
+**View all logs:**
+```bash
+./vendor/bin/sail logs
+```
+
+**Follow logs (real-time):**
+```bash
+./vendor/bin/sail logs -f
+```
+
+**View specific service logs:**
+```bash
+./vendor/bin/sail logs laravel.test
+./vendor/bin/sail logs mysql
+```
+
+### Xdebug Configuration
+
+Xdebug is available but disabled by default. To enable:
+
+1. **Set Xdebug mode in `.env`:**
+   ```env
+   SAIL_XDEBUG_MODE=develop,debug
    ```
 
-4. **Run Artisan commands**
+2. **Restart containers:**
    ```bash
-   ./vendor/bin/sail artisan migrate
+   ./vendor/bin/sail restart
    ```
 
-5. **Run Composer commands**
-   ```bash
-   ./vendor/bin/sail composer install
-   ```
+Available Xdebug modes: `develop`, `debug`, `coverage`, `profile`, `trace`
 
-6. **Run npm commands**
-   ```bash
-   ./vendor/bin/sail npm install
-   ```
+### Troubleshooting
+
+**Port conflicts:**
+If ports 80, 5173, or 3306 are already in use, change them in `.env`:
+```env
+APP_PORT=8080
+VITE_PORT=5174
+FORWARD_DB_PORT=3307
+```
+
+**Permission issues:**
+If you encounter permission errors, ensure `WWWUSER` and `WWWGROUP` in `.env` match your system user/group IDs:
+```bash
+id -u  # Your user ID
+id -g  # Your group ID
+```
+
+**Container rebuild:**
+If you need to rebuild containers:
+```bash
+./vendor/bin/sail build --no-cache
+./vendor/bin/sail up -d
+```
+
+**Clear everything and start fresh:**
+```bash
+./vendor/bin/sail down -v
+./vendor/bin/sail up -d
+```
 
 For more information, see the [Laravel Sail documentation](https://laravel.com/docs/sail).
 
