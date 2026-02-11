@@ -55,6 +55,6 @@ class CreditTransactionObserver
     {
         $creditTransaction->customer
             ?->getCreditBalanceCalculator()
-            ->calculate(force: true);
+            ->invalidateCachedBalance();
     }
 }

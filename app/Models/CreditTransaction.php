@@ -49,4 +49,42 @@ class CreditTransaction extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::updating(function (CreditTransaction $transaction): void {
+            if ($transaction->isDirty('amount')) {
+                $transaction->validateBalanceAfterUpdate();
+            }
+        });
+    }
+
+    /**
+     * Validate that updating this transaction won't cause negative balance.
+     *
+     * @throws \Exception if balance would go negative
+     */
+    private function validateBalanceAfterUpdate(): void
+    {
+        $customer = $this->customer;
+        if (! $customer) {
+            return;
+        }
+
+        $oldAmount = $this->getOriginal('amount') ?? 0;
+        $newAmount = $this->amount;
+        $amountDifference = $newAmount - $oldAmount;
+
+        $currentBalance = $customer->getCreditBalanceCalculator()->calculate(force: true);
+        $newBalance = $currentBalance + $amountDifference;
+
+        if ($newBalance < 0) {
+            throw new \Exception("Cannot update transaction. New balance would be {$newBalance} credits, which is negative.");
+        }
+    }
 }

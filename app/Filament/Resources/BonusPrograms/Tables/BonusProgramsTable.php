@@ -5,6 +5,7 @@ namespace App\Filament\Resources\BonusPrograms\Tables;
 use App\Filament\Tables\Columns\DateColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -48,6 +49,7 @@ class BonusProgramsTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

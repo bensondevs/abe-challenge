@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('reason');
             $table->integer('amount');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

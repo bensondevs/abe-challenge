@@ -7,6 +7,7 @@ use App\Models\CreditTransaction;
 use App\Models\Customer;
 use App\Models\Reward;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class RedeemReward
 {
@@ -20,28 +21,36 @@ class RedeemReward
         Customer $customer,
         Reward $reward
     ): CreditTransaction {
-        // Validate reward is active
-        if (! $reward->active) {
-            throw new \Exception('Reward is not active');
-        }
+        return DB::transaction(function () use ($administrator, $customer, $reward): CreditTransaction {
+            // Validate reward is active
+            if (! $reward->active) {
+                throw new \Exception('Reward is not active');
+            }
 
-        // Validate sufficient balance
-        $currentBalance = $customer->getCreditBalanceCalculator()->calculate(force: true);
-        if ($currentBalance < $reward->required_credits) {
-            throw new \Exception("Cannot redeem '{$reward->title}'. Required: {$reward->required_credits} credits, Current: {$currentBalance} credits.");
-        }
+            // Lock the customer row to prevent concurrent modifications
+            $lockedCustomer = Customer::lockForUpdate()->find($customer->id);
+            if (! $lockedCustomer) {
+                throw new \Exception('Customer not found');
+            }
 
-        // Create credit transaction using manual assignment
-        $transaction = new CreditTransaction;
-        $transaction->type = Type::Reward;
-        $transaction->amount = -$reward->required_credits;
-        $transaction->reason = "Redeemed: {$reward->title}";
+            // Validate sufficient balance
+            $currentBalance = $lockedCustomer->getCreditBalanceCalculator()->calculate(force: true);
+            if ($currentBalance < $reward->required_credits) {
+                throw new \Exception("Cannot redeem '{$reward->title}'. Required: {$reward->required_credits} credits, Current: {$currentBalance} credits.");
+            }
 
-        $transaction->customer()->associate($customer);
-        $transaction->administrator()->associate($administrator);
+            // Create credit transaction using manual assignment
+            $transaction = new CreditTransaction;
+            $transaction->type = Type::Reward;
+            $transaction->amount = -$reward->required_credits;
+            $transaction->reason = "Redeemed: {$reward->title}";
 
-        $transaction->save();
+            $transaction->customer()->associate($lockedCustomer);
+            $transaction->administrator()->associate($administrator);
 
-        return $transaction;
+            $transaction->save();
+
+            return $transaction;
+        });
     }
 }
