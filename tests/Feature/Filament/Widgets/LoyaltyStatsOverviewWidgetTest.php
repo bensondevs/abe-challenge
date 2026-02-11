@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Feature\Filament\Widgets;
+
 use App\Filament\Pages\AdministratorDashboard;
 use App\Filament\Widgets\LoyaltyStatsOverviewWidget;
 use App\Models\User;

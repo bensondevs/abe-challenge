@@ -2,12 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Actions\ApplyBonusProgram;
-use App\Forms\Components\BonusProgramSelect;
 use App\Models\BonusProgram;
-use Filament\Actions\Action;
-use Filament\Forms\Components\Textarea;
-use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -38,4 +33,3 @@ class CustomerBonusProgramsWidget extends BaseWidget
             ->heading('Available Bonus Programs');
     }
 }
-

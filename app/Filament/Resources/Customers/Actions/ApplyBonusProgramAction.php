@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Customers\Actions;
 
 use App\Actions\ApplyBonusProgram;
-use App\Forms\Components\BonusProgramSelect;
+use App\Filament\Forms\Components\BonusProgramSelect;
 use App\Models\BonusProgram;
 use App\Models\Customer;
 use Filament\Actions\Action;

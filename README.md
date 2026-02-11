@@ -210,34 +210,25 @@ The Filament admin panel is available at:
 http://localhost:8000/administrator
 ```
 
-### Default Admin User
+### Customer Panel
 
-After running the database seeder, a default administrator account is created:
+The customer panel is available at:
 
+```
+http://localhost:8000/customer
+```
+
+### Test Credentials
+
+After running the database seeder (`php artisan db:seed`), you can use these credentials to log in:
+
+**Admin Panel:**
 - **Email**: `administrator@abe-challenge.com`
-- **Password**: You'll need to set a password manually or create a new user
+- **Password**: `password`
 
-To create an admin user manually:
-
-```bash
-php artisan make:filament-user
-```
-
-Or use Tinker:
-
-```bash
-php artisan tinker
-```
-
-Then create a user:
-
-```php
-$user = \App\Models\User::create([
-    'name' => 'Administrator',
-    'email' => 'admin@example.com',
-    'password' => \Illuminate\Support\Facades\Hash::make('password'),
-]);
-```
+**Customer Panel:**
+- **Email**: `customer@abe-challenge.com`
+- **Password**: `password`
 
 ## Development Workflow
 

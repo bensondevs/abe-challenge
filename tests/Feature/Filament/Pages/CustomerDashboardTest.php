@@ -1,19 +1,21 @@
 <?php
 
-use App\Filament\Resources\CustomerTransactions\Pages\ListCustomerTransactions;
+namespace Tests\Feature\Filament\Pages;
+
+use App\Filament\Pages\CustomerDashboard;
 use App\Models\Customer;
 use Filament\Facades\Filament;
-use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
-it('can access customer transaction resource list page when authenticated as customer', function () {
+it('can access customer dashboard when authenticated as customer', function () {
     $customer = Customer::factory()->create();
 
     actingAs($customer, 'customer');
 
     Filament::setCurrentPanel('customer');
 
-    Livewire::test(ListCustomerTransactions::class)
+    get(CustomerDashboard::getUrl())
         ->assertSuccessful();
 });

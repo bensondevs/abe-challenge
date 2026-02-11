@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Feature\Filament\Pages;
+
 use App\Filament\Pages\AdministratorDashboard;
 use App\Models\User;
 

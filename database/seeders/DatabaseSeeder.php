@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Customer::factory()->create([
+            'name' => 'Test Customer',
             'email' => 'customer@abe-challenge.com',
         ]);
 
