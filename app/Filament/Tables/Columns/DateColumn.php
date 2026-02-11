@@ -15,4 +15,3 @@ class DateColumn extends TextColumn
             ->wrap();
     }
 }
-

@@ -44,4 +44,3 @@ class BonusProgram extends Model
         return $this->hasMany(CreditTransaction::class);
     }
 }
-

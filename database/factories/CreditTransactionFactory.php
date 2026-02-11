@@ -3,9 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\Transaction\Type;
-use App\Models\BonusProgram;
 use App\Models\Customer;
-use App\Models\Reward;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

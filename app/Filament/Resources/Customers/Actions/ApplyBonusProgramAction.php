@@ -75,5 +75,3 @@ class ApplyBonusProgramAction
             ->successNotificationTitle('Bonus program applied successfully');
     }
 }
-
-

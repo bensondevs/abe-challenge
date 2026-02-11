@@ -7,8 +7,8 @@ use App\Models\CreditTransaction;
 use App\Models\Customer;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 
 class AddDeductCreditsAction
@@ -79,5 +79,3 @@ class AddDeductCreditsAction
             ->successNotificationTitle('Transaction completed successfully');
     }
 }
-
-

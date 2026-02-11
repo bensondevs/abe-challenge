@@ -19,7 +19,7 @@ class CustomerInfolist
                 TextEntry::make('current_balance')
                     ->label('Current Credit Balance')
                     ->numeric()
-                    ->formatStateUsing(fn (int $state): string => number_format($state) . ' credits'),
+                    ->formatStateUsing(fn (int $state): string => number_format($state).' credits'),
                 TextEntry::make('created_at')
                     ->label('Created At')
                     ->dateTime(),
@@ -29,5 +29,3 @@ class CustomerInfolist
             ]);
     }
 }
-
-

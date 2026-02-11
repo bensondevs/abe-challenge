@@ -34,7 +34,7 @@ class CustomerTransactionsTable
                 TextColumn::make('amount')
                     ->label('Amount')
                     ->numeric()
-                    ->formatStateUsing(fn (int $state): string => ($state >= 0 ? '+' : '') . number_format($state) . ' credits')
+                    ->formatStateUsing(fn (int $state): string => ($state >= 0 ? '+' : '').number_format($state).' credits')
                     ->color(fn (int $state): string => $state >= 0 ? 'success' : 'danger')
                     ->sortable(),
                 TextColumn::make('reason')
@@ -59,4 +59,3 @@ class CustomerTransactionsTable
             ->paginated([10, 25, 50]);
     }
 }
-

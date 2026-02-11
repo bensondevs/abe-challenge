@@ -111,4 +111,3 @@ class RedeemRewardAction
             ->successNotificationTitle('Reward redeemed successfully');
     }
 }
-

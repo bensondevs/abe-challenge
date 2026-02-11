@@ -46,4 +46,3 @@ class LoyaltyStatsOverviewWidget extends StatsOverviewWidget
         ];
     }
 }
-
