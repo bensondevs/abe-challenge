@@ -12,6 +12,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
+use Filament\Enums\DatabaseNotificationsPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -77,7 +78,8 @@ class AdministratorPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->spa()
-            ->unsavedChangesAlerts();
+            ->unsavedChangesAlerts()
+            ->databaseNotifications();
     }
 
     public function boot(): void

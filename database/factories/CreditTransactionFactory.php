@@ -24,7 +24,6 @@ class CreditTransactionFactory extends Factory
 
         return [
             'customer_id' => Customer::factory(),
-            'user_id' => fake()->boolean(80) ? User::factory() : null,
             'type' => Type::random(),
             'amount' => $finalAmount,
             'reason' => fake()->sentence(),

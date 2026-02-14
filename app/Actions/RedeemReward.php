@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Enums\Transaction\Type;
+use App\Events\Reward\RewardRedeemedByCustomer;
 use App\Models\CreditTransaction;
 use App\Models\Customer;
 use App\Models\Reward;
@@ -52,6 +53,10 @@ class RedeemReward
             }
 
             $transaction->save();
+
+            if (! $administrator instanceof User) {
+                event(new RewardRedeemedByCustomer($customer, $reward));
+            }
 
             return $transaction;
         });

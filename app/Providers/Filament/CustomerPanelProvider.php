@@ -67,6 +67,8 @@ class CustomerPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->spa()
-            ->unsavedChangesAlerts();
+            ->unsavedChangesAlerts()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('15s');
     }
 }
