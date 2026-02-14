@@ -68,6 +68,11 @@ class Customer extends Authenticatable implements FilamentUser
         return $this->hasMany(CreditTransaction::class);
     }
 
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $panel->getId() === 'customer';
+    }
+
     public function currentBalance(): Attribute
     {
         return Attribute::get(
@@ -80,8 +85,15 @@ class Customer extends Authenticatable implements FilamentUser
         return CreditBalanceCalculator::for($this);
     }
 
-    public function canAccessPanel(Panel $panel): bool
+    public function canRedeem(Reward $reward): bool
     {
-        return $panel->getId() === 'customer';
+        if (! $reward->active) {
+            return false;
+        }
+
+        // Check if customer has sufficient balance
+        $currentBalance = $this->getCreditBalanceCalculator()->calculate();
+
+        return $currentBalance >= $reward->required_credits;
     }
 }

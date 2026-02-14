@@ -9,6 +9,11 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class CustomerBalanceWidget extends StatsOverviewWidget
 {
+    public function getListeners(): array
+    {
+        return ['reward-redeemed' => '$refresh'];
+    }
+
     protected function getStats(): array
     {
         $customer = auth('customer')->user();

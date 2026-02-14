@@ -14,38 +14,39 @@ class RedeemReward
     /**
      * Redeem a reward for a customer.
      *
-     * @throws \Exception if reward is not active or insufficient balance
+     * @throws \Exception|\Throwable if reward is not active or insufficient balance
      */
     public function __invoke(
-        ?User $administrator,
         Customer $customer,
-        Reward $reward
+        Reward $reward,
+        ?User $administrator = null,
     ): CreditTransaction {
         return DB::transaction(function () use ($administrator, $customer, $reward): CreditTransaction {
-            // Validate reward is active
-            if (! $reward->active) {
+            if (! $reward->isActive()) {
                 throw new \Exception('Reward is not active');
             }
 
-            // Lock the customer row to prevent concurrent modifications
-            $lockedCustomer = Customer::lockForUpdate()->find($customer->id);
-            if (! $lockedCustomer) {
+            $lockedCustomer = Customer::query()
+                ->lockForUpdate()
+                ->find($customer->getKey());
+
+            if (! $lockedCustomer instanceof Customer) {
                 throw new \Exception('Customer not found');
             }
 
-            // Validate sufficient balance
             $currentBalance = $lockedCustomer->getCreditBalanceCalculator()->calculate(force: true);
+
             if ($currentBalance < $reward->required_credits) {
                 throw new \Exception("Cannot redeem '{$reward->title}'. Required: {$reward->required_credits} credits, Current: {$currentBalance} credits.");
             }
 
-            // Create credit transaction using manual assignment
             $transaction = new CreditTransaction;
             $transaction->type = Type::Reward;
             $transaction->amount = -$reward->required_credits;
             $transaction->reason = "Redeemed: {$reward->title}";
 
             $transaction->customer()->associate($lockedCustomer);
+
             if ($administrator) {
                 $transaction->administrator()->associate($administrator);
             }

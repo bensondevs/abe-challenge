@@ -35,4 +35,9 @@ class Reward extends Model
             'active' => 'boolean',
         ];
     }
+
+    public function isActive(): bool
+    {
+        return (bool) $this->active;
+    }
 }

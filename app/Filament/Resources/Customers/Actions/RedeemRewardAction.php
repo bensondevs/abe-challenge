@@ -81,9 +81,9 @@ class RedeemRewardAction
 
                 try {
                     $redeemReward(
-                        administrator: auth()->user(),
                         customer: $record,
                         reward: $reward,
+                        administrator: auth()->user(),
                     );
 
                     Notification::make()

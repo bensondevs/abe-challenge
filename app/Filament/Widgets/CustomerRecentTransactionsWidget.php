@@ -15,6 +15,11 @@ class CustomerRecentTransactionsWidget extends BaseWidget
 
     protected static ?int $sort = 2;
 
+    public function getListeners(): array
+    {
+        return ['reward-redeemed' => '$refresh'];
+    }
+
     public function table(Table $table): Table
     {
         return $table
