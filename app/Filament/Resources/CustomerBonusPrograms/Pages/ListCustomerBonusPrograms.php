@@ -9,4 +9,3 @@ class ListCustomerBonusPrograms extends ListRecords
 {
     protected static string $resource = CustomerBonusProgramResource::class;
 }
-

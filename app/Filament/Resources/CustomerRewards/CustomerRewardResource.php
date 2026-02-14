@@ -92,4 +92,3 @@ class CustomerRewardResource extends Resource
         return Filament::getCurrentPanel()?->getId() === 'customer';
     }
 }
-

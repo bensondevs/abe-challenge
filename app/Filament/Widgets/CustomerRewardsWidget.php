@@ -2,12 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Actions\RedeemReward;
 use App\Models\Reward;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -34,8 +30,8 @@ class CustomerRewardsWidget extends BaseWidget
                     ->numeric()
                     ->formatStateUsing(fn (int $state): string => number_format($state).' credits'),
             ])
+            ->recordAction(fn () => Action::make('redeemReward'))
             ->paginated(false)
             ->heading('Available Rewards');
     }
 }
-

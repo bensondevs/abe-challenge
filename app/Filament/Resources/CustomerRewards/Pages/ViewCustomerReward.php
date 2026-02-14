@@ -9,4 +9,3 @@ class ViewCustomerReward extends ViewRecord
 {
     protected static string $resource = CustomerRewardResource::class;
 }
-

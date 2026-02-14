@@ -349,4 +349,3 @@ it('can update reward without description on edit', function () {
 
     expect($reward->fresh()->title)->toBe('Updated Title');
 });
-

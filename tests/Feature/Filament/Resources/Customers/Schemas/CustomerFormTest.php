@@ -455,4 +455,3 @@ it('validates email max length on edit', function () {
         ->assertHasFormErrors(['email' => 'max'])
         ->assertNotNotified();
 });
-

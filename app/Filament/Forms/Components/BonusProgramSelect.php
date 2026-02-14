@@ -57,9 +57,9 @@ class BonusProgramSelect extends Select
     protected function formatOption(BonusProgram $bonusProgram): array
     {
         return [
-            $bonusProgram->getKey() => $bonusProgram->title .'<br />'
-                . '<span class="fi-sc-text">+'
-                . $bonusProgram->credit_amount . ' credits'
+            $bonusProgram->getKey() => $bonusProgram->title.'<br />'
+                .'<span class="fi-sc-text">+'
+                .$bonusProgram->credit_amount.' credits'
                 .'</span>',
         ];
     }

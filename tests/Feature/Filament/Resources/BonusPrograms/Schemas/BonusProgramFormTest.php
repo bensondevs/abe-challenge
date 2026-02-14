@@ -349,4 +349,3 @@ it('can update bonus program without description on edit', function () {
 
     expect($bonusProgram->fresh()->title)->toBe('Updated Title');
 });
-

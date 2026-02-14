@@ -7,7 +7,7 @@ A Laravel 12 application with Filament 5 admin panel for managing customer credi
 - **Laravel 12** - PHP Framework
 - **Filament 5** - Admin Panel
 - **Livewire 4** - Reactive Components
-- **PHP 8.2+** - Programming Language (PHP 8.5 in Sail environment)
+- **PHP 8.2+** - Programming Language (PHP 8.4 in Sail environment)
 - **SQLite/MySQL** - Database (MySQL 8.4 in Sail environment)
 - **Vite** - Frontend Build Tool
 - **Tailwind CSS** - Styling
@@ -43,7 +43,7 @@ Before you begin, ensure you have the following installed on your machine:
 **For Docker Development (with Laravel Sail):**
 - **Docker** and **Docker Compose** - Required for Sail
 - **Node.js 22+** and **npm** - For frontend asset compilation (optional, can run in container)
-- Note: Sail provides PHP 8.5 and MySQL 8.4 automatically, so local PHP/MySQL installation is not required
+- Note: Sail provides PHP 8.4 and MySQL 8.4 automatically, so local PHP/MySQL installation is not required
 
 ## Installation
 
@@ -195,6 +195,9 @@ If you're using Laravel Sail, configure these variables:
 - `APP_PORT` - Application port (default: `80`)
 - `VITE_PORT` - Vite dev server port (default: `5173`)
 - `FORWARD_DB_PORT` - MySQL port exposed to host (default: `3306`)
+- `FORWARD_REDIS_PORT` - Redis port exposed to host (default: `6379`)
+- `FORWARD_MAILPIT_PORT` - Mailpit SMTP port (default: `1025`)
+- `FORWARD_MAILPIT_DASHBOARD_PORT` - Mailpit web dashboard port (default: `8025`)
 - `WWWUSER` - User ID for file permissions (usually your system user ID, e.g., `1000`)
 - `WWWGROUP` - Group ID for file permissions (usually your system group ID, e.g., `1000`)
 - `SAIL_XDEBUG_MODE` - Xdebug mode (default: `off`, can be set to `develop,debug,coverage,profile,trace`)
@@ -240,8 +243,64 @@ DB_PASSWORD=your_password
 
 ### Cache & Queue
 
-- `CACHE_STORE` - Cache driver (default: `database`)
-- `QUEUE_CONNECTION` - Queue driver (default: `database`)
+- `CACHE_STORE` - Cache driver (default: `database`, recommended: `redis` for Sail)
+- `QUEUE_CONNECTION` - Queue driver (default: `database`, recommended: `redis` for Sail)
+
+**For Laravel Sail (Recommended: Redis)**
+```env
+CACHE_STORE=redis
+QUEUE_CONNECTION=redis
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+**For Local Development (Database)**
+```env
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+```
+
+### Redis Configuration
+
+Redis is available in the Sail environment for improved cache and queue performance. To use Redis:
+
+1. **Configure Redis in `.env`**
+   ```env
+   REDIS_HOST=redis
+   REDIS_PASSWORD=null
+   REDIS_PORT=6379
+   CACHE_STORE=redis
+   QUEUE_CONNECTION=redis
+   ```
+
+2. **Redis is automatically available** when using Sail - no additional setup required.
+
+3. **Access Redis from host machine** (optional):
+   ```bash
+   redis-cli -h 127.0.0.1 -p 6379
+   ```
+
+### Email Testing with Mailpit
+
+Mailpit is included in the Sail environment for testing emails locally without sending real emails.
+
+1. **Configure Mailpit in `.env`**
+   ```env
+   MAIL_MAILER=smtp
+   MAIL_HOST=mailpit
+   MAIL_PORT=1025
+   MAIL_USERNAME=null
+   MAIL_PASSWORD=null
+   MAIL_ENCRYPTION=null
+   ```
+
+2. **Access Mailpit Dashboard**
+   - Open `http://localhost:8025` in your browser
+   - All emails sent by the application will appear here
+   - You can view email content, headers, and HTML/text versions
+
+3. **Mailpit is automatically available** when using Sail - no additional setup required.
 
 ## Database Setup
 
@@ -360,6 +419,14 @@ The customer panel is available at:
 
 - **Laravel Sail**: `http://localhost/customer`
 - **Local PHP**: `http://localhost:8000/customer`
+
+### Mailpit Dashboard (Sail Only)
+
+When using Laravel Sail, you can view all emails sent by the application at:
+
+- **Mailpit Dashboard**: `http://localhost:8025`
+
+This is useful for testing email functionality without sending real emails.
 
 ### Test Credentials
 
@@ -512,8 +579,10 @@ Laravel Sail is already installed and pre-configured in this project. Sail provi
 ### Sail is Already Installed
 
 This project comes with Sail pre-configured. The `docker-compose.yml` file is set up with:
-- PHP 8.5 runtime
+- PHP 8.4 runtime
 - MySQL 8.4 database
+- Redis (for cache and queues)
+- Mailpit (for email testing)
 - Nginx web server
 - All necessary PHP extensions
 

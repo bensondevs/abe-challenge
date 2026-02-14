@@ -70,4 +70,3 @@ class CustomerPanelProvider extends PanelProvider
             ->unsavedChangesAlerts();
     }
 }
-

@@ -92,4 +92,3 @@ class CustomerBonusProgramResource extends Resource
         return Filament::getCurrentPanel()?->getId() === 'customer';
     }
 }
-

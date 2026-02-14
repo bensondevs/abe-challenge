@@ -16,4 +16,3 @@ class CustomerDashboard extends Dashboard
         return Filament::getCurrentPanel()?->getId() === 'customer';
     }
 }
-

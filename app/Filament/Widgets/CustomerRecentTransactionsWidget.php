@@ -11,7 +11,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class CustomerRecentTransactionsWidget extends BaseWidget
 {
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected static ?int $sort = 2;
 
@@ -55,4 +55,3 @@ class CustomerRecentTransactionsWidget extends BaseWidget
             ->heading('Recent Transactions');
     }
 }
-

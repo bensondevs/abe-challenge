@@ -9,4 +9,3 @@ class ViewCustomerBonusProgram extends ViewRecord
 {
     protected static string $resource = CustomerBonusProgramResource::class;
 }
-

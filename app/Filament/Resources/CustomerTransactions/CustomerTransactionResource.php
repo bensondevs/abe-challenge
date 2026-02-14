@@ -5,13 +5,12 @@ namespace App\Filament\Resources\CustomerTransactions;
 use App\Filament\Resources\CustomerTransactions\Pages\ListCustomerTransactions;
 use App\Filament\Resources\CustomerTransactions\Tables\CustomerTransactionsTable;
 use App\Models\CreditTransaction;
-use Filament\Facades\Filament;
-use Illuminate\Database\Eloquent\Builder;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CustomerTransactionResource extends Resource
 {
